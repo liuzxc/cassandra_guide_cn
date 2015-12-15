@@ -16,4 +16,44 @@ CREATE TABLE songs (
 );
 ```
 
-在关系型数据库中，你也许会创建一个 playlists 表，它包括一个指向 song 表的外键，但是在 cassandra，join 操作并不适用于分布式系统。
+在关系型数据库中，你也许会创建一个 playlists 表，它包括一个指向 song 表的外键，但是在 cassandra，join 操作并不适用于分布式系统。为了描绘 playlists 的数据，你可以这样创建表：
+
+```
+CREATE TABLE playlists (
+  id uuid,
+  song_order int,
+  song_id uuid,
+  title text,
+  album text,
+  artist text,
+  PRIMARY KEY  (id, song_order )
+);
+  
+```
+在 playlists 表中，id 和 song_order 的组合可以唯一的标示表中的一行数据。你可以有多行具有相同 id 的数据，只要这些行包含不同的 song_order。
+
+以下是插入单条记录到 playlists 表的例子：
+
+```
+INSERT INTO playlists (id, song_order, song_id, title, artist, album)
+  VALUES (62c36092-82a1-3a00-93d1-46196ee77204, 1,
+  a3e64f8f-bd44-4f28-b8d9-6938726e34d4, 'La Grange', 'ZZ Top', 'Tres
+Hombres');
+INSERT INTO playlists (id, song_order, song_id, title, artist, album)
+  VALUES (62c36092-82a1-3a00-93d1-46196ee77204, 2,
+  8a172618-b121-4136-bb10-f665cfc469eb, 'Moving in Stereo', 'Fu Manchu',
+ 'We Must Obey');
+INSERT INTO playlists (id, song_order, song_id, title, artist, album)
+  VALUES (62c36092-82a1-3a00-93d1-46196ee77204, 3,2b09185b-fb5a-4734-9b56-49077de9edbf, 'Outside Woman Blues', 'Back Door
+Slam', 'Roll Away');
+```
+
+插入数据之后，可以使用 SELECT 查询语句展示数据：
+
+```SELECT album, title FROM playlists WHERE artist = 'Fu Manchu';```
+
+![](http://docs.datastax.com/en/cql/3.1/cql/images/select_playlists.png)
+ 
+下面的例子介绍了如何使用 artist 作为过滤器筛选数据：
+
+```SELECT album, title FROM playlists WHERE artist = 'Fu Manchu';```

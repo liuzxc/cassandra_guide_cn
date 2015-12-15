@@ -57,3 +57,11 @@ Slam', 'Roll Away');
 下面的例子介绍了如何使用 artist 作为过滤器筛选数据：
 
 ```SELECT album, title FROM playlists WHERE artist = 'Fu Manchu';```
+
+Cassandra 会拒绝这个查询，因为查询要求顺序扫描整个表，但 artist 并不是一个分区键（partition key）或聚集列（clustering column)。通过在 artist 列上创建一个索引，Cassandra 可以获取数据。
+
+```CREATE INDEX ON playlists( artist );```
+
+现在，你可以通过 Fu Manchu 查询到响应的歌曲：
+
+![](http://docs.datastax.com/en/cql/3.1/cql/images/artist_fumanchu.png)
